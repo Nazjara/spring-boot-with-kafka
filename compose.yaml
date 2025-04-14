@@ -50,9 +50,10 @@ services:
     networks:
       - kafka-net
 
-  spring-boot-app:
-    build: .
-    container_name: spring-boot-app
+  dispatch-service:
+    build: 
+      context: ./dispatch-service
+    container_name: dispatch-service
     depends_on:
       kafka:
         condition: service_healthy
@@ -60,7 +61,7 @@ services:
       - "8080:8080"
     restart: always
     environment:
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
     networks:
       - kafka-net
 
