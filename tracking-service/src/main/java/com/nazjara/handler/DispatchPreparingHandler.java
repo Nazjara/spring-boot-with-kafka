@@ -1,6 +1,6 @@
 package com.nazjara.handler;
 
-import com.nazjara.message.DispatchPreparing;
+import com.nazjara.message.DispatchTracking;
 import com.nazjara.service.TrackingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ public class DispatchPreparingHandler {
       groupId = "tracking.dispatch.preparing.consumer",
       topics = "${kafka.topic.dispatch.tracking}",
       containerFactory = "kafkaListenerContainerFactory")
-  public void listen(@Payload DispatchPreparing payload) {
+  public void listen(@Payload DispatchTracking payload) {
     log.info("Received message: {}", payload);
 
     trackingService.process(payload);

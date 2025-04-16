@@ -4,6 +4,6 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record DispatchPreparing(UUID orderId) {
+public record DispatchTracking(UUID orderId) {
 
 }

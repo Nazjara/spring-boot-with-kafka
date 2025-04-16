@@ -1,6 +1,5 @@
 package com.nazjara.rest;
 
-import com.nazjara.message.OrderCreated;
 import com.nazjara.service.DispatchService;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -20,12 +19,9 @@ public class SimpleController {
   private final DispatchService dispatchService;
 
   @PostMapping("/publish")
-  public void publishEvent(@RequestParam String item, @RequestParam UUID orderId) {
+  public void publishEvent(@RequestParam UUID orderId) {
     try {
-      dispatchService.process(OrderCreated.builder()
-          .item(item)
-          .orderId(orderId)
-          .build());
+      dispatchService.process(orderId);
     } catch (ExecutionException | InterruptedException e) {
       log.error("Event processing failed", e);
     }

@@ -1,8 +1,8 @@
 package com.nazjara.service;
 
-import com.nazjara.message.DispatchPreparing;
-import com.nazjara.message.OrderCreated;
+import com.nazjara.message.DispatchTracking;
 import com.nazjara.message.OrderDispatched;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DispatchService {
 
-  @Value("${kafka.topic.order-dispatched}")
+  @Value("${kafka.topic.order.dispatched}")
   private String orderDispatchedTopic;
 
   @Value("${kafka.topic.dispatch.tracking}")
@@ -21,18 +21,18 @@ public class DispatchService {
 
   private final KafkaTemplate<String, Object> kafkaTemplate;
 
-  public void process(OrderCreated payload) throws ExecutionException, InterruptedException {
-    var orderDispatched = OrderDispatched.builder()
-        .orderId(payload.orderId())
+  public void process(UUID orderId) throws ExecutionException, InterruptedException {
+    var dispatchPreparing = DispatchTracking.builder()
+        .orderId(orderId)
         .build();
 
     // get() makes this call synchronous
-    kafkaTemplate.send(orderDispatchedTopic, orderDispatched).get();
+    kafkaTemplate.send(dispatchTrackingTopic, dispatchPreparing).get();
 
-    var dispatchPreparing = DispatchPreparing.builder()
-        .orderId(payload.orderId())
+    var orderDispatched = OrderDispatched.builder()
+        .orderId(orderId)
         .build();
 
-    kafkaTemplate.send(dispatchTrackingTopic, dispatchPreparing);
+    kafkaTemplate.send(orderDispatchedTopic, orderDispatched).get();
   }
 }
