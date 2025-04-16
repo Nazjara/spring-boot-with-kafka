@@ -41,12 +41,12 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "8081:8081"
+      - "8090:8090"
     restart: always
     environment:
       KAFKA_CLUSTERS_0_NAME: kraft-local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
-      SERVER_PORT: 8081
+      SERVER_PORT: 8090
     networks:
       - kafka-net
 
@@ -59,6 +59,21 @@ services:
         condition: service_healthy
     ports:
       - "8080:8080"
+    restart: always
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    networks:
+      - kafka-net
+        
+  tracking-service:
+    build:
+      context: ./tracking-service
+    container_name: tracking-service
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
     restart: always
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092

@@ -1,5 +1,6 @@
 package com.nazjara.service;
 
+import com.nazjara.message.DispatchPreparing;
 import com.nazjara.message.OrderCreated;
 import com.nazjara.message.OrderDispatched;
 import java.util.concurrent.ExecutionException;
@@ -13,16 +14,25 @@ import org.springframework.stereotype.Service;
 public class DispatchService {
 
   @Value("${kafka.topic.order-dispatched}")
-  private String topic;
+  private String orderDispatchedTopic;
+
+  @Value("${kafka.topic.dispatch.tracking}")
+  private String dispatchTrackingTopic;
 
   private final KafkaTemplate<String, Object> kafkaTemplate;
 
   public void process(OrderCreated payload) throws ExecutionException, InterruptedException {
     var orderDispatched = OrderDispatched.builder()
-        .orderId(payload.getOrderId())
+        .orderId(payload.orderId())
         .build();
 
     // get() makes this call synchronous
-    kafkaTemplate.send(topic, orderDispatched).get();
+    kafkaTemplate.send(orderDispatchedTopic, orderDispatched).get();
+
+    var dispatchPreparing = DispatchPreparing.builder()
+        .orderId(payload.orderId())
+        .build();
+
+    kafkaTemplate.send(dispatchTrackingTopic, dispatchPreparing);
   }
 }

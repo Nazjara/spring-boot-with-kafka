@@ -16,7 +16,6 @@ public class OrderCreatedHandler {
   private final DispatchService dispatchService;
 
   @KafkaListener(
-      id = "orderConsumerClient",
       groupId = "dispatch.order.created.consumer",
       topics = "${kafka.topic.order-created}",
       containerFactory = "kafkaListenerContainerFactory")
