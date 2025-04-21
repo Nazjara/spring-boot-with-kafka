@@ -30,12 +30,6 @@ public class OrderDispatchedIntegrationTest {
   @Autowired
   private KafkaTestListener kafkaTestListener;
 
-//  @Autowired
-//  private EmbeddedKafkaBroker embeddedKafkaBroker;
-//
-//  @Autowired
-//  private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
-
   @Autowired
   private MockMvc mockMvc;
 
@@ -49,15 +43,14 @@ public class OrderDispatchedIntegrationTest {
 
     kafkaTestListener.getOrderDispatchedCounter().set(0);
     kafkaTestListener.getDispatchPreparingCounter().set(0);
-
-//    kafkaListenerEndpointRegistry.getAllListenerContainers().forEach(container ->
-//        ContainerTestUtils.waitForAssignment(container,
-//            embeddedKafkaBroker.getPartitionsPerTopic()));
   }
 
   @Test
   public void orderDispatchedTest() throws Exception {
-    Thread.sleep(5000);
+    // Wait for embedded Kafka partitions to be assigned
+    // Maybe there's a better way to do this
+    Thread.sleep(3000);
+
     mockMvc.perform(post("/api/publish")
             .param("item", item)
             .param("orderId", orderId.toString()))

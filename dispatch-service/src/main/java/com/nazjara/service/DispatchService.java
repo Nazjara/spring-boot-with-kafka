@@ -33,6 +33,6 @@ public class DispatchService {
         .orderId(orderId)
         .build();
 
-    kafkaTemplate.send(orderDispatchedTopic, orderDispatched).get();
+    kafkaTemplate.send(orderDispatchedTopic, orderDispatched);
   }
 }
