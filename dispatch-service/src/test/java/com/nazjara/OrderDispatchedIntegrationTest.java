@@ -48,7 +48,7 @@ public class OrderDispatchedIntegrationTest {
   @Test
   public void orderDispatchedTest() throws Exception {
     // Wait for embedded Kafka partitions to be assigned
-    // Maybe there's a better way to do this
+    // Probably there's a better way to do this
     Thread.sleep(3000);
 
     mockMvc.perform(post("/api/publish")

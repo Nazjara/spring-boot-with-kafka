@@ -27,12 +27,12 @@ public class DispatchService {
         .build();
 
     // get() makes this call synchronous
-    kafkaTemplate.send(dispatchTrackingTopic, dispatchPreparing).get();
+    kafkaTemplate.send(dispatchTrackingTopic, String.valueOf(orderId), dispatchPreparing).get();
 
     var orderDispatched = OrderDispatched.builder()
         .orderId(orderId)
         .build();
 
-    kafkaTemplate.send(orderDispatchedTopic, orderDispatched);
+    kafkaTemplate.send(orderDispatchedTopic, String.valueOf(orderId), orderDispatched);
   }
 }
