@@ -1,5 +1,7 @@
 package com.nazjara.handler;
 
+import com.nazjara.exception.NotRetryableException;
+import com.nazjara.exception.RetryableException;
 import com.nazjara.message.DispatchTracking;
 import com.nazjara.service.TrackingService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @KafkaListener(
     groupId = "tracking.dispatch.preparing.consumer",
-    topics = "${kafka.topic.dispatch.tracking}",
+    topics = {"${kafka.topic.dispatch.tracking}", "${kafka.topic.dispatch.tracking.dlt}"},
     containerFactory = "kafkaListenerContainerFactory")
 public class DispatchPreparingHandler {
 
@@ -28,6 +30,24 @@ public class DispatchPreparingHandler {
       @Payload DispatchTracking payload) {
     log.info("Received message: {} with key {} from partition {}", payload, key, partition);
 
-    trackingService.process(payload);
+    try {
+      trackingService.process(payload);
+    } catch (RetryableException e) {
+      log.warn(e.getMessage(), e);
+      throw e;
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      throw new NotRetryableException();
+    }
+  }
+
+  @KafkaHandler
+  public void listenDlt(@Header(KafkaHeaders.RECEIVED_KEY) String key,
+      @Header(KafkaHeaders.RECEIVED_PARTITION) Integer partition,
+      @Payload DispatchTracking payload) {
+    log.info("Received message from dead letter topic: {} with key {} from partition {}", payload,
+        key, partition);
+
+    // some processing
   }
 }
